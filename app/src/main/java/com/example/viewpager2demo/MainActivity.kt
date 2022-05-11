@@ -1,14 +1,22 @@
 package com.example.viewpager2demo
 
-import androidx.appcompat.app.AppCompatActivity
+import android.animation.Animator
+import android.animation.ValueAnimator
 import android.os.Bundle
 import android.os.Handler
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
+
+const val ANI_PERIOD = 20_000L // TODO calc from item size
+const val JOB_DELAY = 1_000L
+const val JOB_PERIOD = JOB_DELAY + ANI_PERIOD
 
 class MainActivity : AppCompatActivity() {
 
@@ -42,6 +50,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         setUpSlidingViewPager()
+        setUpAnimateButtons()
     }
 
     private fun setUpSlidingViewPager() {
@@ -89,7 +98,8 @@ class MainActivity : AppCompatActivity() {
             }
 
             //The second parameter ensures smooth scrolling
-            slidingViewPager.setCurrentItem(currentPage++, true)
+            //slidingViewPager.setCurrentItem(currentPage++, true)
+            playAnimation()
         }
 
         Timer().schedule(object : TimerTask() {
@@ -97,7 +107,48 @@ class MainActivity : AppCompatActivity() {
             override fun run() {
                 handler.post(update)
             }
-        }, 3500, 3500)
+        }, JOB_DELAY, JOB_PERIOD)
+    }
+
+    private fun setUpAnimateButtons() {
+        findViewById<Button>(R.id.btn1).setOnClickListener { goLast() }
+        findViewById<Button>(R.id.btn2).setOnClickListener { goFirst() }
+    }
+    private fun playAnimation() {
+        if (slidingViewPager.currentItem > 0)
+            goFirst()
+        else
+            goLast()
+    }
+    private fun goFirst() { goTo(slidingViewPager, 0) }
+    private fun goLast() { goTo(slidingViewPager, imagesArray.size-1) }
+
+    // https://stackoverflow.com/a/59235979/466693
+    private fun goTo(pager: ViewPager2, item: Int) {
+
+        val pagePxWidth = pager.width
+        val currentItem = pager.currentItem
+        val interpolator = AccelerateDecelerateInterpolator()
+        val duration:Long = ANI_PERIOD
+
+        val pxToDrag: Int = pagePxWidth * (item - currentItem)
+        val animator = ValueAnimator.ofInt(0, pxToDrag)
+        var previousValue = 0
+        animator.addUpdateListener { valueAnimator ->
+            val currentValue = valueAnimator.animatedValue as Int
+            val currentPxToDrag = (currentValue - previousValue).toFloat()
+            pager.fakeDragBy(-currentPxToDrag)
+            previousValue = currentValue
+        }
+        animator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator?) { pager.beginFakeDrag() }
+            override fun onAnimationEnd(animation: Animator?) { pager.endFakeDrag() }
+            override fun onAnimationCancel(animation: Animator?) { /* Ignored */ }
+            override fun onAnimationRepeat(animation: Animator?) { /* Ignored */ }
+        })
+        animator.interpolator = interpolator
+        animator.duration = duration
+        animator.start()
     }
 
     override fun onDestroy() {
