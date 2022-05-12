@@ -27,6 +27,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var slidingImageDots: Array<ImageView?>
     private var slidingDotsCount = 0
 
+    private lateinit var timer: Timer
+
     private val slidingCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             for (i in 0 until slidingDotsCount) {
@@ -104,7 +106,8 @@ class MainActivity : AppCompatActivity() {
             playAnimation()
         }
 
-        Timer().schedule(object : TimerTask() {
+        timer = Timer()
+        timer.schedule(object : TimerTask() {
             // task to be scheduled
             override fun run() {
                 handler.post(update)
@@ -162,6 +165,7 @@ class MainActivity : AppCompatActivity() {
     override fun onDestroy() {
         super.onDestroy()
         slidingViewPager.unregisterOnPageChangeCallback(slidingCallback)
+        timer.cancel()
     }
 
 }
