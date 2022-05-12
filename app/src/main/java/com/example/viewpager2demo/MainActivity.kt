@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.ValueAnimator
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageView
@@ -14,7 +15,8 @@ import androidx.viewpager2.widget.ViewPager2
 import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 
-const val ANI_PERIOD = 20_000L // TODO calc from item size
+const val TAG = "DEBUG"
+const val ANI_PERIOD = 1_000L //20_000L // TODO calc from item size
 const val JOB_DELAY = 1_000L
 const val JOB_PERIOD = JOB_DELAY + ANI_PERIOD
 
@@ -111,20 +113,26 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpAnimateButtons() {
-        findViewById<Button>(R.id.btn1).setOnClickListener { goLast() }
-        findViewById<Button>(R.id.btn2).setOnClickListener { goFirst() }
+        findViewById<Button>(R.id.btn1).setOnClickListener { /* START */ }
+        findViewById<Button>(R.id.btn2).setOnClickListener { /* STOP */ }
     }
     private fun playAnimation() {
-        if (slidingViewPager.currentItem > 0)
-            goFirst()
-        else
-            goLast()
+        if (slidingViewPager.currentItem > 0) { // first page
+            goTo(slidingViewPager, 0)
+        }
+        else { // last page
+            val itemCount = slidingViewPager.adapter?.itemCount ?: 0
+            goTo(slidingViewPager, itemCount-1)
+        }
     }
-    private fun goFirst() { goTo(slidingViewPager, 0) }
-    private fun goLast() { goTo(slidingViewPager, imagesArray.size-1) }
 
     // https://stackoverflow.com/a/59235979/466693
     private fun goTo(pager: ViewPager2, item: Int) {
+        Log.d(TAG, "go to item: $item")
+        if (item < 0) {
+            Log.d(TAG, "item not found, stop")
+            return
+        }
 
         val pagePxWidth = pager.width
         val currentItem = pager.currentItem
