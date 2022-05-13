@@ -24,8 +24,10 @@ class MarqueePager constructor(private val pager: ViewPager2) {
     private var handler: Handler? = null
 
     // main functions
-    fun play(delay: Long=jobDelay, period: Long=jobPeriod, aniPeriod: Long=pagePeriod) {
-        if (isRunning) {
+    fun play(delay: Long=jobDelay,
+             period: Long=jobPeriod,
+             aniPeriod: Long=pagePeriod) {
+        if (isRunning || pager.isFakeDragging) {
             l("job is running..")
             return
         }
@@ -39,7 +41,7 @@ class MarqueePager constructor(private val pager: ViewPager2) {
         }, delay, period)
     }
     fun stop() {
-        if (!isRunning) {
+        if (!isRunning || !pager.isFakeDragging) {
             l("job already stopped")
             return
         }

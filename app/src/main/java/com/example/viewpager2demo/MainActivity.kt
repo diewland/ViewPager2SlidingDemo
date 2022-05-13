@@ -10,7 +10,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.diewland.pager.MarqueePager
 import kotlinx.android.synthetic.main.activity_main.*
 
-const val JOB_DELAY = 1_000L
+const val JOB_DELAY = 0L
 const val JOB_PERIOD = 1_000L
 const val ANI_PPP = 200L // period per page
 
