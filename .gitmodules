@@ -1,0 +1,3 @@
+[submodule "app/src/main/java/com/diewland/pager"]
+	path = app/src/main/java/com/diewland/pager
+	url = https://github.com/diewland/marquee-pager.git
