@@ -1,34 +1,24 @@
 package com.example.viewpager2demo
 
-import android.animation.Animator
-import android.animation.ValueAnimator
 import android.os.Bundle
-import android.os.Handler
-import android.util.Log
-import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
+import com.diewland.pager.MarqueePager
 import kotlinx.android.synthetic.main.activity_main.*
-import java.util.*
 
-const val TAG = "DEBUG"
-const val ANI_PERIOD = 1_000L //20_000L // TODO calc from item size
 const val JOB_DELAY = 1_000L
-const val JOB_PERIOD = JOB_DELAY + ANI_PERIOD
+const val JOB_PERIOD = 1_000L
+const val ANI_PPP = 200L // period per page
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var imagesArray: Array<String>
-    private var currentPage = 0
     private lateinit var slidingImageDots: Array<ImageView?>
     private var slidingDotsCount = 0
-
-    private lateinit var timer: Timer
-
     private val slidingCallback = object : ViewPager2.OnPageChangeCallback() {
         override fun onPageSelected(position: Int) {
             for (i in 0 until slidingDotsCount) {
@@ -49,9 +39,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private lateinit var marqueePager: MarqueePager
+    private fun playMarquee() {
+        marqueePager.play()
+        // marqueePager.play(JOB_DELAY, JOB_PERIOD, ANI_PPP)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        marqueePager = MarqueePager(slidingViewPager)
 
         setUpSlidingViewPager()
         setUpAnimateButtons()
@@ -95,77 +93,19 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        val handler = Handler()
-        val update = Runnable {
-            if (currentPage == imagesArray.size) {
-                currentPage = 0
-            }
-
-            //The second parameter ensures smooth scrolling
-            //slidingViewPager.setCurrentItem(currentPage++, true)
-            playAnimation()
-        }
-
-        timer = Timer()
-        timer.schedule(object : TimerTask() {
-            // task to be scheduled
-            override fun run() {
-                handler.post(update)
-            }
-        }, JOB_DELAY, JOB_PERIOD)
+        // start animation
+        playMarquee()
     }
 
     private fun setUpAnimateButtons() {
-        findViewById<Button>(R.id.btn1).setOnClickListener { /* START */ }
-        findViewById<Button>(R.id.btn2).setOnClickListener { /* STOP */ }
-    }
-    private fun playAnimation() {
-        if (slidingViewPager.currentItem > 0) { // first page
-            goTo(slidingViewPager, 0)
-        }
-        else { // last page
-            val itemCount = slidingViewPager.adapter?.itemCount ?: 0
-            goTo(slidingViewPager, itemCount-1)
-        }
-    }
-
-    // https://stackoverflow.com/a/59235979/466693
-    private fun goTo(pager: ViewPager2, item: Int) {
-        Log.d(TAG, "go to item: $item")
-        if (item < 0) {
-            Log.d(TAG, "item not found, stop")
-            return
-        }
-
-        val pagePxWidth = pager.width
-        val currentItem = pager.currentItem
-        val interpolator = AccelerateDecelerateInterpolator()
-        val duration:Long = ANI_PERIOD
-
-        val pxToDrag: Int = pagePxWidth * (item - currentItem)
-        val animator = ValueAnimator.ofInt(0, pxToDrag)
-        var previousValue = 0
-        animator.addUpdateListener { valueAnimator ->
-            val currentValue = valueAnimator.animatedValue as Int
-            val currentPxToDrag = (currentValue - previousValue).toFloat()
-            pager.fakeDragBy(-currentPxToDrag)
-            previousValue = currentValue
-        }
-        animator.addListener(object : Animator.AnimatorListener {
-            override fun onAnimationStart(animation: Animator?) { pager.beginFakeDrag() }
-            override fun onAnimationEnd(animation: Animator?) { pager.endFakeDrag() }
-            override fun onAnimationCancel(animation: Animator?) { /* Ignored */ }
-            override fun onAnimationRepeat(animation: Animator?) { /* Ignored */ }
-        })
-        animator.interpolator = interpolator
-        animator.duration = duration
-        animator.start()
+        findViewById<Button>(R.id.btn1).setOnClickListener { playMarquee() }
+        findViewById<Button>(R.id.btn2).setOnClickListener { marqueePager.stop() }
     }
 
     override fun onDestroy() {
         super.onDestroy()
         slidingViewPager.unregisterOnPageChangeCallback(slidingCallback)
-        timer.cancel()
+        marqueePager.stop()
     }
 
 }
