@@ -11,8 +11,8 @@ import com.diewland.pager.MarqueePager
 import kotlinx.android.synthetic.main.activity_main.*
 
 const val JOB_DELAY = 1_000L
-const val JOB_PERIOD = 3_000L
-const val PAGE_DELAY = 500L
+const val PAGE_DURATION = 500L
+const val LAST_PAGE_DELAY = 1_000L
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var marqueePager: MarqueePager
     private fun playMarquee() {
-        marqueePager.play(JOB_DELAY, JOB_PERIOD, PAGE_DELAY)
+        marqueePager.play(JOB_DELAY, PAGE_DURATION, LAST_PAGE_DELAY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
