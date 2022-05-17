@@ -10,9 +10,9 @@ import androidx.viewpager2.widget.ViewPager2
 import com.diewland.pager.MarqueePager
 import kotlinx.android.synthetic.main.activity_main.*
 
-const val JOB_DELAY = 0L
-const val JOB_PERIOD = 1_000L
-const val ANI_PPP = 200L // period per page
+const val JOB_DELAY = 1_000L
+const val JOB_PERIOD = 3_000L
+const val PAGE_DELAY = 500L
 
 class MainActivity : AppCompatActivity() {
 
@@ -41,8 +41,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var marqueePager: MarqueePager
     private fun playMarquee() {
-        marqueePager.play()
-        // marqueePager.play(JOB_DELAY, JOB_PERIOD, ANI_PPP)
+        marqueePager.play(JOB_DELAY, JOB_PERIOD, PAGE_DELAY)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
