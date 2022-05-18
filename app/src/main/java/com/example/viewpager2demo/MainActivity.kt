@@ -10,9 +10,9 @@ import androidx.viewpager2.widget.ViewPager2
 import com.diewland.pager.MarqueePager
 import kotlinx.android.synthetic.main.activity_main.*
 
-const val JOB_DELAY = 1_000L
-const val PAGE_DURATION = 500L
-const val LAST_PAGE_DELAY = 1_000L
+const val JOB_DELAY = 5_000L
+const val PAGE_DURATION = 10_000L
+const val LAST_PAGE_DELAY = 5_000L
 
 class MainActivity : AppCompatActivity() {
 
